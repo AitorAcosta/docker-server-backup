@@ -1,0 +1,49 @@
+#!/bin/bash
+
+set -e
+
+_add_line() {
+    local check="$1"
+    local line="$2"
+    local file="$3"
+    if ! grep -q "$check" "$file"; then
+        echo "$line" >> "$file"
+    fi
+}
+
+if [ $BACKUP_ENCRYPT -ne 0 ]; then
+    if [ ${#BACKUP_ENCRYPT_KEY} -lt 32 ]; then
+        BACKUP_ENCRYPT=0
+        echo "WARNING: Encryption disabled, please set at least a 32 character key" > /dev/stderr
+    else
+        echo $BACKUP_ENCRYPT_KEY > /opt/server-backup/config/enc.key
+    fi
+fi
+
+conf=/opt/server-backup/config/general.conf
+sed -i "s/BAK_SEND_MAIL_ERR=.*/BAK_SEND_MAIL_ERR=$BACKUP_SEND_MAIL_ERR/" $conf
+sed -i "s/BAK_SEND_MAIL_LOG=.*/BAK_SEND_MAIL_LOG=$BACKUP_SEND_MAIL_LOG/" $conf
+sed -i "s/BAK_MAIL_COSTUMER=.*/BAK_MAIL_COSTUMER='$BACKUP_EMAIL_SUBJECT'/" $conf
+sed -i "s/BAK_MAIL_FROM_USER=.*/BAK_MAIL_FROM_USER='$BACKUP_EMAIL_FROM'/" $conf
+sed -i "s/BAK_MAIL_TO=.*/BAK_MAIL_TO='$BACKUP_EMAIL_TO'/" $conf
+sed -i "s/BAK_MAIL_CC=.*/BAK_MAIL_CC='$BACKUP_EMAIL_CC'/" $conf
+sed -i "s/BAK_ENCRYPT=.*/BAK_ENCRYPT=$BACKUP_ENCRYPT/" $conf
+
+conf=/opt/server-backup/config/database.conf
+sed -i "s/POSTGRESQL_HOST=.*/POSTGRESQL_HOST=$PG_HOST/" $conf
+sed -i "s/POSTGRESQL_USER=.*/POSTGRESQL_USER=$PG_USER/" $conf
+sed -i "s/POSTGRESQL_PASS=.*/POSTGRESQL_PASS=$PG_PASS/" $conf
+
+conf=/opt/server-backup/config/s3.conf
+sed -i "s/BAK_S3_BUCKET=.*/BAK_S3_BUCKET=$BACKUP_S3_BUCKET/" $conf
+sed -i "s/BAK_S3_INSTANCE=.*/BAK_S3_INSTANCE=$BACKUP_S3_INSTANCE/" $conf
+
+conf=/opt/server-backup/config/.s3cfg
+sed -i "s/access_key = .*/access_key = $BACKUP_S3_ACCESS_KEY/" $conf
+sed -i "s/secret_key = .*/secret_key = $BACKUP_S3_SECRET_KEY/" $conf
+sed -i "s/bucket_location = .*/bucket_location = $BACKUP_S3_REGION/" $conf
+
+conf=/opt/server-backup/config/sources.conf
+for s in $BACKUP_SOURCES; do
+    _add_line "$s" "$s" $conf
+done
