@@ -20,15 +20,27 @@ ENV BACKUP_S3_ACCESS_KEY='__s3_access_key_to_change__' \
     PG_USER='__pguser__' \
     PG_PASS='__pgpass__'
 
-RUN apt-get update &&
+RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get upgrade -y && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y python-dateutil postgresql-client-9.5 && \
-    git clone https://github.com/s3tools/s3cmd -b master /opt/s3cmd && \
-    ln -s /opt/s3cmd/s3cmd /usr/bin/s3cmd && \
-    git clone https://github.com/antespi/s3md5 -b master /opt/s3md5 && \
-    ln -s /opt/s3md5/s3md5 /usr/bin/s3md5 && \
-    git clone https://github.com/antespi/server-backup.git -b master /opt/server-backup && \
-    mkdir -p /opt/backupdata
+    DEBIAN_FRONTEND=noninteractive apt-get install -y \
+        python-dateutil \
+        python-magic \
+        postgresql-client-9.5 \
+        wget \
+        net-tools \
+        vim-common \
+        bzip2 && \
+    echo "Downloading s3cmd ..." && \
+    wget -qO- https://github.com/s3tools/s3cmd/archive/master.tar.gz | tar -xzC /opt && \
+    ln -s /opt/s3cmd-master/s3cmd /usr/bin/s3cmd && \
+    echo "Downloading s3md5 ..." && \
+    wget -qO- https://github.com/antespi/s3md5/archive/master.tar.gz | tar -xzC /opt && \
+    ln -s /opt/s3md5-master/s3md5 /usr/bin/s3md5 && \
+    echo "Downloading server-backup ..." && \
+    wget -qO- https://github.com/antespi/server-backup/archive/docker.tar.gz | tar -xzC /opt && \
+    mv /opt/server-backup-docker /opt/server-backup && \
+    mkdir -p /opt/backupdata && \
+    mkdir -p /opt/source
 
 ADD config /opt/server-backup/config
 ADD backup /etc/cron.d/
