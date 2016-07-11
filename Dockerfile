@@ -30,6 +30,8 @@ RUN apt-get update && \
         net-tools \
         vim-common \
         bzip2 && \
+    apt-get clean -y && apt-get autoclean -y && apt-get autoremove -y && \
+    rm -rf /var/cache/apt/archives/* /var/cache/apt/*.bin /var/lib/apt/lists/* && \
     echo "Downloading s3cmd ..." && \
     wget -qO- https://github.com/s3tools/s3cmd/archive/master.tar.gz | tar -xzC /opt && \
     ln -s /opt/s3cmd-master/s3cmd /usr/bin/s3cmd && \
@@ -42,6 +44,8 @@ RUN apt-get update && \
     mkdir -p /opt/backupdata && \
     mkdir -p /opt/source
 
+VOLUME ["/opt/backupdata", "/opt/source"]
+
 ADD config /opt/server-backup/config
 ADD backup /etc/cron.d/
 ADD croninit /usr/local/bin/
@@ -49,4 +53,3 @@ RUN chmod a+rx /usr/local/bin/*
 
 ENTRYPOINT ["/usr/local/bin/entrypoint"]
 CMD ["tail", "-f", "/var/log/syslog"]
-VOLUME ["/opt/backupdata", "/opt/source"]
