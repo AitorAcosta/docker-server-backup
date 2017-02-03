@@ -19,23 +19,22 @@ ENV BACKUP_S3_ACCESS_KEY='__s3_access_key_to_change__' \
     PG_USER='__pguser__' \
     PG_PASS='__pgpass__'
 
-# Allow to have latest postgresql client
-RUN echo deb http://apt.postgresql.org/pub/repos/apt/ xenial-pgdg main \
-    > /etc/apt/sources.list.d/pgdg.list
-RUN wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc \
-    | apt-key add -
-
 # Install everything required
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get upgrade -y && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y \
         python-dateutil \
         python-magic \
-        postgresql-client \
         wget \
         net-tools \
         vim-common \
         bzip2 && \
+    echo deb http://apt.postgresql.org/pub/repos/apt/ xenial-pgdg main \
+        > /etc/apt/sources.list.d/pgdg.list && \
+    wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc \
+        | apt-key add - && \
+    DEBIAN_FRONTEND=noninteractive apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y postgresql-client && \
     apt-get clean -y && apt-get autoclean -y && apt-get autoremove -y && \
     rm -rf /var/cache/apt/archives/* /var/cache/apt/*.bin /var/lib/apt/lists/* && \
     echo "Downloading s3cmd ..." && \
