@@ -1,6 +1,5 @@
 FROM tecnativa/cron:latest
-
-MAINTAINER antespi@gmail.com
+MAINTAINER Tecnativa <info@tecnativa.com>
 
 ENV BACKUP_S3_ACCESS_KEY='__s3_access_key_to_change__' \
     BACKUP_S3_SECRET_KEY='__s3_secret_key_to_change__' \
@@ -20,12 +19,19 @@ ENV BACKUP_S3_ACCESS_KEY='__s3_access_key_to_change__' \
     PG_USER='__pguser__' \
     PG_PASS='__pgpass__'
 
+# Allow to have latest postgresql client
+RUN echo deb http://apt.postgresql.org/pub/repos/apt/ xenial-pgdg main \
+    > /etc/apt/sources.list.d/pgdg.list
+RUN wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc \
+    | apt-key add -
+
+# Install everything required
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get upgrade -y && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y \
         python-dateutil \
         python-magic \
-        postgresql-client-9.5 \
+        postgresql-client \
         wget \
         net-tools \
         vim-common \
