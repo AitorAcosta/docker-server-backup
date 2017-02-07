@@ -13,6 +13,6 @@ BACKUP_S3_INSTANCE=myinstance` and you want to restore the file
 `s3://mybucket/myinstance/some/file.tar.gz.enc` into `/root/restored` in the
 container, just run:
 
-    restore some/file.tar.gz.enc /root/restored
+    docker exec -it backup_container restore some/file.tar.gz.enc /root/restored
 
 The file will be downloaded, decrypted and uncompressed for you. :wink:
