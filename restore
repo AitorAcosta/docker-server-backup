@@ -1,0 +1,24 @@
+#!/bin/bash
+set -ex
+if [ -z "$1" -o -z "$2" ]; then
+    echo You need to supply 2 arguments: file to restore under \
+    "s3://$BACKUP_S3_BUCKET/$BACKUP_S3_INSTANCE" and destination > /dev/stderr
+    exit 1
+fi
+downloaded="$(tempfile)"
+decrypted="$(tempfile)"
+rm -Rf "$downloaded" "$decrypted"
+uncompressed="$2"
+mkdir -p "$uncompressed"
+s3cmd -c /opt/server-backup/config/.s3cfg \
+    get "s3://$BACKUP_S3_BUCKET/$BACKUP_S3_INSTANCE/$1" "$downloaded"
+
+if [ -f /opt/server-backup/config/enc.key ]; then
+    openssl enc -aes-256-cbc -d -salt \
+        -pass file:/opt/server-backup/config/enc.key \
+        -in "$downloaded" -out "$decrypted"
+    tar -xzf "$decrypted" -C "$uncompressed"
+else
+    mv "$downloaded" "$uncompressed"
+fi
+rm -Rf "$downloaded" "$decrypted"

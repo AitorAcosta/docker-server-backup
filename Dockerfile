@@ -53,7 +53,7 @@ VOLUME ["/opt/backupdata", "/opt/source"]
 
 ADD config /opt/server-backup/config
 ADD backup /etc/cron.d/
-ADD croninit /usr/local/bin/
+ADD croninit restore /usr/local/bin/
 RUN chmod a+rx /usr/local/bin/*
 
 ENTRYPOINT ["/usr/local/bin/entrypoint"]
