@@ -8,11 +8,19 @@ Backup for docker containers PostgreSQL and volumes to S3
 
 Use the `restore` script to restore a file from S3.
 
-Assuming  you ran the image with `-e BACKUP_S3_BUCKET=mybucket -e
-BACKUP_S3_INSTANCE=myinstance` and you want to restore the file
-`s3://mybucket/myinstance/some/file.tar.gz.enc` into `/root/restored` in the
-container, just run:
+Assuming you ran the image with `-e BACKUP_S3_BUCKET=mybucket -e
+BACKUP_S3_INSTANCE=myinstance --name backup_container` and you want to restore
+the file `s3://mybucket/myinstance/some/file.tar.gz.enc` into `/root/restored`
+in the container, just run:
 
     docker exec -it backup_container restore some/file.tar.gz.enc /root/restored
+
+If the container was run by Docker Compose (assuming the service was called
+`backup`):
+
+    docker-compose exec backup restore some/file.tar.gz.enc /root/restored
+
+If you want to extract the restored files to the host, use a shared volume or
+`docker cp`.
 
 The file will be downloaded, decrypted and uncompressed for you. :wink:
