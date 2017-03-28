@@ -1,9 +1,9 @@
 #!/bin/bash
 
-if [ $BACKUP_ENCRYPT -ne 0 -a ${#BACKUP_ENCRYPT_KEY} -lt 32 ]; then
+if [ "$BACKUP_ENCRYPT" -ne 0 -a "${#BACKUP_ENCRYPT_KEY}" -lt 32 ]; then
     echo "ERROR: Encryption key shorter than 32 characters" > /dev/stderr
     exit 1
 fi
 
-echo $BACKUP_ENCRYPT_KEY > /opt/server-backup/config/enc.key
+echo "$BACKUP_ENCRYPT_KEY" > /opt/server-backup/config/enc.key
 echo "$BACKUP_SOURCES" > /opt/server-backup/config/sources.conf
