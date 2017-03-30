@@ -7,3 +7,8 @@ fi
 
 echo "$BACKUP_ENCRYPT_KEY" > /opt/server-backup/config/enc.key
 echo "$BACKUP_SOURCES" > /opt/server-backup/config/sources.conf
+
+# Make Docker ENV variables visible to cron
+# SEE http://stackoverflow.com/a/43114525/1468388
+env | sed -r "s/'/\\\'/gm" | sed -r "s/^([^=]+=)(.*)\$/\1'\2'/gm" \
+    > /etc/environment
