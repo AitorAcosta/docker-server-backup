@@ -13,12 +13,12 @@ mkdir -p "$uncompressed"
 s3cmd -c /opt/server-backup/config/.s3cfg \
     get "s3://$BACKUP_S3_BUCKET/$BACKUP_S3_INSTANCE/$1" "$downloaded"
 
-if [ -f /opt/server-backup/config/enc.key ]; then
+if $BACKUP_ENCRYPT; then
     openssl enc -aes-256-cbc -d -salt \
         -pass file:/opt/server-backup/config/enc.key \
         -in "$downloaded" -out "$decrypted"
     tar -xzf "$decrypted" -C "$uncompressed"
 else
-    mv "$downloaded" "$uncompressed"
+    tar -xzf "$downloaded" -C "$uncompressed"
 fi
 rm -Rf "$downloaded" "$decrypted"
