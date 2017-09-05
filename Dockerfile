@@ -23,7 +23,7 @@ ENV BACKUP_S3_ACCESS_KEY='__s3_access_key_to_change__' \
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get upgrade -y && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y \
-        s3cmd \
+        zip \
         python-dateutil \
         python-magic \
         wget \
